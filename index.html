@@ -366,6 +366,54 @@ function startCheckout() {
     document.getElementById('trust-strip').innerHTML = '✓ You have <span>' + s.credits + ' competitor credit' + (s.credits > 1 ? 's' : '') + '</span> ready to use.';
   }
 })();
+
+// ===== URL PARAM PREFILL (concierge mode) =====
+(function() {
+  var params = new URLSearchParams(location.search);
+  var bizParam = params.get("biz");
+  var cityParam = params.get("city");
+  var emailParam = params.get("email");
+  var fromParam = params.get("from");
+  if (!bizParam || !cityParam) return;
+
+  function esc2(s) { return String(s).replace(/[<>&"]/g, function(c){ return ({"<":"&lt;",">":"&gt;","&":"&amp;","\"":"&quot;"})[c]; }); }
+
+  // Pre-fill form fields
+  document.getElementById("biz").value = bizParam;
+  document.getElementById("city").value = cityParam;
+  if (emailParam) document.getElementById("email").value = emailParam;
+
+  // Personalize hero
+  var hero = document.querySelector(".hero");
+  if (hero) {
+    var fromLine = fromParam ? ("Sent by " + esc2(fromParam) + " · ") : "Personalized for you · ";
+    hero.innerHTML = 
+      '<div class="eyebrow">' + fromLine + 'Ready when you are</div>' +
+      '<h1>' + esc2(bizParam) + ' — your <span class="red">Red Flag Report</span><br>is <span class="accent">one click away.</span></h1>' +
+      '<p class="subhero">' + (fromParam ? esc2(fromParam) + " built this AI research tool and pre-loaded your business. " : "Your business is already loaded. ") + 'Just hit the button — real AI does the research in about 60 seconds.</p>';
+  }
+
+  // Pre-loaded styling on inputs
+  document.querySelectorAll(".field input").forEach(function(inp) {
+    if (inp.value) {
+      inp.style.background = "rgba(255,184,0,.10)";
+      inp.style.borderColor = "rgba(255,184,0,.5)";
+      inp.style.color = "#ffb800";
+      inp.style.fontWeight = "600";
+    }
+  });
+
+  // Update CTA button text
+  var submitBtn = document.getElementById("submit-btn");
+  if (submitBtn) {
+    submitBtn.textContent = "Show me my Red Flag Report →";
+    submitBtn.focus();
+  }
+
+  // Update trust strip
+  var trust = document.getElementById("trust-strip");
+  if (trust) trust.innerHTML = (fromParam ? esc2(fromParam) + " covered the cost of this one." : "First report on us.") + " <span>Real AI runs in ~60 sec.</span>";
+})();
 </script>
 
 </body>
