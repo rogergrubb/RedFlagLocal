@@ -191,8 +191,15 @@ footer a { color: #ffb800; }
 </div>
 
 <footer>
-  RedFlag.biz · Built by <a href="mailto:roger@grubb.net">Roger Grubb</a> · Number One Son Software Development<br>
-  <small style="opacity:.5;">Reports use real-time AI research powered by Claude with web search. Data sources cited at the bottom of every report.</small>
+  <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+    <div>RedFlag.biz · Built by Roger Grubb · Number One Son Software Development</div>
+    <small style="opacity:.5;">Reports use real-time AI research powered by Claude with web search. Data sources cited at the bottom of every report.</small>
+    <form id="feedback-form" onsubmit="return submitFeedback(event)" style="display:flex; gap:6px; margin-top:14px; width:100%; max-width:460px;">
+      <input type="text" id="feedback-input" placeholder="See anything wrong? Tell the developer →" maxlength="500" style="flex:1; padding:9px 13px; border-radius:6px; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.3); color:#fff; font-size:13px; font-family:inherit; outline:none;">
+      <button type="submit" style="background:rgba(255,184,0,.15); color:#ffb800; border:1px solid rgba(255,184,0,.3); padding:9px 16px; border-radius:6px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;">Send</button>
+    </form>
+    <div id="feedback-result" style="font-size:12px; min-height:16px; opacity:.85;"></div>
+  </div>
 </footer>
 
 <script>
@@ -414,6 +421,21 @@ function startCheckout() {
   var trust = document.getElementById("trust-strip");
   if (trust) trust.innerHTML = (fromParam ? esc2(fromParam) + " covered the cost of this one." : "First report on us.") + " <span>Real AI runs in ~60 sec.</span>";
 })();
+
+async function submitFeedback(e) {
+  e.preventDefault();
+  var input = document.getElementById("feedback-input");
+  var result = document.getElementById("feedback-result");
+  var msg = input.value.trim();
+  if (!msg || msg.length < 3) { result.textContent = "Add a few more words."; result.style.color = "#ff4747"; return false; }
+  result.textContent = "Sending\u2026"; result.style.color = "#c4cdd9";
+  try {
+    var res = await fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: msg, context: { page: location.href, biz: (typeof app !== "undefined" && app.biz) || "", city: (typeof app !== "undefined" && app.city) || "", userAgent: navigator.userAgent } }) });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    result.textContent = "\u2713 Thank you. Roger received it."; result.style.color = "#5eea84"; input.value = "";
+  } catch(err) { result.textContent = "Send failed. Try again."; result.style.color = "#ff4747"; }
+  return false;
+}
 </script>
 
 </body>
