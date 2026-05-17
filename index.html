@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RedFlag.biz — See what's hurting your business in 60 seconds</title>
+<meta name="description" content="Free AI-driven research report on your small business. Then run it on your competition for $19.99. Real data, real laws, real money on the table.">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #0a1428; color: #fff; line-height: 1.5; min-height: 100vh;
+}
+.wrap { max-width: 880px; margin: 0 auto; padding: 24px 20px 80px; }
+header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; max-width: 880px; margin: 0 auto; }
+.logo { font-weight: 900; font-size: 22px; letter-spacing: -.5px; }
+.logo .dot { color: #ff4747; }
+.logo .biz { color: #ffb800; font-size: 14px; opacity: .7; }
+.nav-links a { color: #fff; opacity: .7; text-decoration: none; margin-left: 18px; font-size: 14px; }
+.nav-links a:hover { opacity: 1; }
+.hero { padding: 24px 0 28px; text-align: center; }
+.eyebrow { color: #ffb800; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; margin-bottom: 14px; }
+h1 { font-size: clamp(26px, 5vw, 46px); line-height: 1.1; font-weight: 900; letter-spacing: -.02em; margin-bottom: 18px; }
+h1 .accent { color: #ffb800; }
+h1 .red { color: #ff4747; }
+.subhero { font-size: clamp(15px, 1.9vw, 18px); color: #c4cdd9; max-width: 640px; margin: 0 auto 28px; }
+.form-card { background: linear-gradient(135deg, #1a2540 0%, #0f1a30 100%); border: 1px solid rgba(255,184,0,.25); border-radius: 16px; padding: 24px 22px; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+.form-row { display: flex; flex-direction: column; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; text-align: left; }
+.field label { font-size: 12px; opacity: .7; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+.field input { padding: 13px 16px; border: 1px solid rgba(255,255,255,.15); border-radius: 8px; background: rgba(0,0,0,.3); color: #fff; font-size: 16px; font-family: inherit; outline: none; transition: border-color .15s, background .15s; }
+.field input:focus { border-color: #ffb800; background: rgba(255,184,0,.05); }
+.field input::placeholder { color: rgba(255,255,255,.35); }
+.btn-primary { background: #ffb800; color: #0a1428; border: 0; padding: 16px 24px; border-radius: 10px; font-size: 17px; font-weight: 800; cursor: pointer; margin-top: 8px; letter-spacing: .3px; transition: background .15s, transform .15s; }
+.btn-primary:hover { background: #ffd24d; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.trust-strip { margin-top: 14px; text-align: center; font-size: 13px; color: #8a96a8; }
+.trust-strip span { color: #ffb800; font-weight: 700; }
+.why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 28px; }
+.why-item { text-align: center; padding: 12px; }
+.why-item .icon { font-size: 24px; margin-bottom: 4px; }
+.why-item .h { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+.why-item .d { font-size: 13px; color: #8a96a8; line-height: 1.4; }
+#loading { display: none; padding: 60px 20px; text-align: center; }
+#loading.active { display: block; }
+.spinner { width: 64px; height: 64px; border: 4px solid rgba(255,184,0,.18); border-top-color: #ffb800; border-radius: 50%; margin: 0 auto 22px; animation: spin 1.1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-msg { font-size: 18px; margin-bottom: 8px; min-height: 24px; }
+.loading-sub { font-size: 13px; color: #8a96a8; margin-bottom: 24px; min-height: 18px; }
+.progress { width: 100%; max-width: 420px; height: 6px; background: rgba(255,255,255,.08); border-radius: 3px; margin: 0 auto; overflow: hidden; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, #ffb800, #ff7a00); width: 0%; transition: width 1s ease; }
+.loading-note { margin-top: 24px; font-size: 12px; color: #5a6878; max-width: 380px; margin-left: auto; margin-right: auto; }
+#report { display: none; }
+#report.active { display: block; }
+.report-card { background: #fff; color: #0a1428; border-radius: 16px; padding: 28px 26px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.report-header { border-bottom: 2px solid #ff4747; padding-bottom: 14px; margin-bottom: 20px; }
+.report-header .stamp { color: #ff4747; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+.report-header h2 { color: #0a1428; font-size: clamp(22px, 4vw, 32px); line-height: 1.1; margin-bottom: 6px; font-weight: 900; }
+.report-header .meta { color: #5a6878; font-size: 13px; }
+.section { margin-bottom: 22px; }
+.section h3 { font-size: 17px; color: #0a1428; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; font-weight: 800; }
+.section h3 .num { background: #ff4747; color: #fff; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+.section p { color: #2a3548; font-size: 14px; margin-bottom: 6px; }
+.section ul { list-style: none; padding: 0; margin: 0; }
+.section ul li { padding: 8px 0 8px 26px; position: relative; color: #2a3548; font-size: 14px; line-height: 1.45; border-bottom: 1px solid rgba(0,0,0,.05); }
+.section ul li:last-child { border-bottom: 0; }
+.section ul li::before { content: '⚠'; position: absolute; left: 0; top: 8px; color: #ff4747; font-weight: 900; font-size: 15px; }
+.section ul.arrows li::before { content: '→'; color: #ffb800; font-weight: 900; }
+.competitor-grid { display: grid; gap: 8px; }
+.competitor-card { background: #f7f4ed; padding: 12px 14px; border-radius: 8px; border-left: 4px solid #ffb800; }
+.competitor-card.you { border-left-color: #ff4747; background: #fff5f5; }
+.competitor-card .name { font-weight: 800; color: #0a1428; font-size: 15px; margin-bottom: 2px; }
+.competitor-card .stats { color: #5a6878; font-size: 13px; }
+.callout { background: linear-gradient(135deg, #fff4c2 0%, #fde68a 100%); border-left: 4px solid #ffb800; padding: 12px 16px; border-radius: 8px; color: #5a3d00; font-weight: 600; margin-top: 12px; font-size: 14px; }
+.callout strong { color: #0a1428; }
+.revenue-box { background: linear-gradient(135deg, #d4f4dd 0%, #b3ecc5 100%); border-left: 4px solid #0a8a3c; padding: 14px 18px; border-radius: 8px; margin-top: 10px; }
+.revenue-box .label { color: #0a8a3c; font-size: 12px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 4px; }
+.revenue-box .amount { color: #0a1428; font-size: clamp(24px, 4.5vw, 34px); font-weight: 900; line-height: 1; }
+.revenue-box .note { color: #2a3548; font-size: 13px; margin-top: 4px; }
+.report-footer { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(0,0,0,.08); color: #5a6878; font-size: 11px; text-align: center; line-height: 1.4; }
+.report-footer .by { color: #ff4747; font-weight: 700; }
+.competitor-hook { margin-top: 28px; background: linear-gradient(135deg, #ff4747 0%, #cc1f1f 100%); padding: 26px 24px; border-radius: 16px; text-align: center; box-shadow: 0 12px 40px rgba(255,71,71,.3); }
+.competitor-hook h2 { font-size: clamp(22px, 3.5vw, 30px); margin-bottom: 8px; font-weight: 900; line-height: 1.15; }
+.competitor-hook p { font-size: 15px; opacity: .95; margin-bottom: 18px; max-width: 540px; margin-left: auto; margin-right: auto; }
+.competitor-hook button { background: #fff; color: #cc1f1f; border: 0; padding: 13px 22px; border-radius: 8px; font-weight: 800; font-size: 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.competitor-hook button:hover { background: #fff5f5; }
+.paywall-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(6px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+.paywall-overlay.active { display: flex; }
+.paywall-card { background: linear-gradient(135deg, #1a2540 0%, #0a1428 100%); border: 1px solid rgba(255,184,0,.3); border-radius: 16px; max-width: 520px; width: 100%; padding: 32px 28px; position: relative; }
+.paywall-card .close { position: absolute; top: 12px; right: 14px; background: transparent; color: #8a96a8; border: 0; font-size: 24px; cursor: pointer; }
+.paywall-card .eyebrow { color: #ff4747; margin-bottom: 8px; }
+.paywall-card h2 { font-size: 26px; line-height: 1.15; font-weight: 900; margin-bottom: 12px; }
+.paywall-card .lead { font-size: 15px; color: #c4cdd9; line-height: 1.5; margin-bottom: 18px; }
+.paywall-card .price-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 16px 0; padding: 14px; background: rgba(255,184,0,.08); border-radius: 10px; }
+.paywall-card .price-row .amount { font-size: 38px; font-weight: 900; color: #ffb800; line-height: 1; }
+.paywall-card .price-row .per { font-size: 14px; color: #c4cdd9; }
+.paywall-card .why-list { font-size: 13px; color: #c4cdd9; margin-bottom: 18px; line-height: 1.6; }
+.paywall-card .why-list strong { color: #ffb800; }
+.paywall-card .pay-btn { display: block; width: 100%; background: #ffb800; color: #0a1428; border: 0; padding: 16px; border-radius: 10px; font-size: 17px; font-weight: 800; cursor: pointer; text-decoration: none; text-align: center; margin-bottom: 10px; }
+.paywall-card .pay-btn:hover { background: #ffd24d; }
+.paywall-card .secondary { display: block; width: 100%; background: transparent; color: #8a96a8; border: 0; padding: 8px; font-size: 13px; cursor: pointer; text-decoration: underline; }
+footer { padding: 30px 20px; text-align: center; color: #5a6878; font-size: 13px; border-top: 1px solid rgba(255,255,255,.06); margin-top: 40px; }
+footer a { color: #ffb800; }
+@media (max-width: 700px) {
+  .why { grid-template-columns: 1fr; gap: 8px; }
+  .report-card { padding: 20px 16px; }
+  .section ul li { font-size: 13px; }
+  .competitor-hook { padding: 20px 16px; }
+  .paywall-card { padding: 24px 20px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">RedFlag<span class="dot">●</span><span class="biz">.biz</span></div>
+  <div class="nav-links"><a href="#how">How it works</a></div>
+</header>
+
+<div class="wrap">
+  <section id="landing">
+    <div class="hero">
+      <div class="eyebrow">Free first report · AI-powered · 60 seconds</div>
+      <h1>See your business through<br><span class="red">Google's eyes.</span> <span class="accent">Free.</span></h1>
+      <p class="subhero">Then run it on your competition for $19.99 each. Real AI does the research — Google Maps, Yelp, federal &amp; state laws, your rebate opportunities — in real time. No fluff.</p>
+    </div>
+
+    <div class="form-card">
+      <form id="report-form" class="form-row" onsubmit="return false;">
+        <div class="field">
+          <label for="biz">Business name</label>
+          <input id="biz" name="biz" type="text" placeholder="e.g. Wilson Electric" required autocomplete="organization">
+        </div>
+        <div class="field">
+          <label for="city">City &amp; state</label>
+          <input id="city" name="city" type="text" placeholder="e.g. El Sobrante, CA" required>
+        </div>
+        <div class="field">
+          <label for="email">Your email <span style="opacity:.5; font-weight:400;">(we will send the report)</span></label>
+          <input id="email" name="email" type="email" placeholder="you@yourbusiness.com" required autocomplete="email">
+        </div>
+        <button class="btn-primary" id="submit-btn" type="submit">Run my Red Flag Report →</button>
+      </form>
+      <p class="trust-strip" id="trust-strip">Your first report is on us. <span>Real research, not a template.</span></p>
+    </div>
+
+    <div class="why" id="how">
+      <div class="why-item"><div class="icon">🔍</div><div class="h">Real AI research</div><div class="d">Claude scans Google, Yelp, BBB, Nextdoor, FB, IG + your industry's regulatory data in real time.</div></div>
+      <div class="why-item"><div class="icon">⚡</div><div class="h">Laws that pay you</div><div class="d">2025–2026 federal, state &amp; local rules + rebates that could grow your revenue.</div></div>
+      <div class="why-item"><div class="icon">📊</div><div class="h">Dollar amounts, not vibes</div><div class="d">Specific revenue at stake. Real competitor names. Verified sources cited.</div></div>
+    </div>
+  </section>
+
+  <section id="loading">
+    <div class="spinner"></div>
+    <div class="loading-msg" id="loading-msg">Looking up your business…</div>
+    <div class="loading-sub" id="loading-sub">Real AI research takes about 60 seconds.</div>
+    <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="loading-note">Claude is making web searches across Google Local Pack, Yelp Fusion, state regulatory databases, federal IRS programs, and your local utility's rebate listings. Real data, real time.</div>
+  </section>
+
+  <section id="report">
+    <div class="report-card" id="report-content"></div>
+  </section>
+
+  <section id="competitor-hook" class="competitor-hook" style="display:none;">
+    <h2>🔍 Now turn it on your competition.</h2>
+    <p>Run a Red Flag Report on anyone in your industry. Find out what their reviews look like behind the curtain, what GBP gaps they have, and what rebate opportunities <em>they're</em> missing. The first thing 9 out of 10 readers do.</p>
+    <button onclick="goCompetitor()">Run a competitor report — $19.99</button>
+  </section>
+</div>
+
+<div class="paywall-overlay" id="paywall">
+  <div class="paywall-card">
+    <button class="close" onclick="closePaywall()">×</button>
+    <div class="eyebrow">🔒 Competitor Report</div>
+    <h2>Curiosity got you, didn't it?</h2>
+    <p class="lead">You used your free Red Flag Report — on your own business. Smart move starting with the mirror. Now you want to see what your competition is sitting on (or hiding).</p>
+    <div class="price-row">
+      <span class="amount">$19.99</span>
+      <span class="per">per competitor report</span>
+    </div>
+    <div class="why-list">
+      Each report runs <strong>real AI research</strong> — Claude makes 5+ live web searches, scans 7+ data sources, and cross-references current federal, state, and local regulations. It is not free for us to do (each report costs us API + compute time), but it is also way too cheap for what you'll learn.
+      <br><br>
+      <strong>Most readers find at least one "oh shit" moment</strong> on their #1 competitor that's worth way more than $19.99.
+    </div>
+    <a href="#" class="pay-btn" id="pay-btn" onclick="startCheckout(); return false;">Unlock for $19.99 →</a>
+    <button class="secondary" onclick="closePaywall()">Maybe later</button>
+  </div>
+</div>
+
+<footer>
+  RedFlag.biz · Built by <a href="mailto:roger@grubb.net">Roger Grubb</a> · Number One Son Software Development<br>
+  <small style="opacity:.5;">Reports use real-time AI research powered by Claude with web search. Data sources cited at the bottom of every report.</small>
+</footer>
+
+<script>
+var STRIPE_LINK = 'https://buy.stripe.com/REPLACE_WITH_STRIPE_PAYMENT_LINK';
+var STORE_KEY = 'redflag_state_v1';
+function readState() { try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch(e) { return {}; } }
+function writeState(s) { try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch(e) {} }
+var app = { biz: '', city: '', email: '' };
+var loadingSteps = [
+  { msg: "Looking up your business…", sub: "Google Places + Yelp Fusion in real time", pct: 8 },
+  { msg: "Verifying your business identity…", sub: "Category, address, years in business", pct: 18 },
+  { msg: "Scanning your online presence…", sub: "GBP, website, Facebook, Instagram, Nextdoor", pct: 30 },
+  { msg: "Pulling your reviews across platforms…", sub: "Yelp, Google, BBB, Angi — distribution and volume", pct: 42 },
+  { msg: "Identifying your top 3 local competitors…", sub: "Nearest businesses in your category", pct: 54 },
+  { msg: "Checking 2025–2026 federal laws…", sub: "Tax credits, mandates, EPA rules", pct: 65 },
+  { msg: "Checking state and local laws…", sub: "Building codes, utility rebates, county programs", pct: 75 },
+  { msg: "Cross-referencing rebate programs…", sub: "Stacking incentives in your favor", pct: 84 },
+  { msg: "Calculating revenue at stake…", sub: "Year-1 opportunity estimate", pct: 92 },
+  { msg: "Drafting your report…", sub: "Compiling findings into one page", pct: 98 }
+];
+var loadingTimer = null;
+function startLoadingTheater() {
+  var msg = document.getElementById('loading-msg');
+  var sub = document.getElementById('loading-sub');
+  var bar = document.getElementById('progress-bar');
+  var i = 0;
+  function next() {
+    if (i >= loadingSteps.length) return;
+    var s = loadingSteps[i];
+    msg.textContent = s.msg;
+    sub.textContent = s.sub;
+    bar.style.width = s.pct + '%';
+    i++;
+    loadingTimer = setTimeout(next, 6500);
+  }
+  next();
+}
+function stopLoadingTheater() { if (loadingTimer) clearTimeout(loadingTimer); document.getElementById('progress-bar').style.width = '100%'; }
+function showLoading() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('loading').classList.add('active');
+  document.getElementById('report').classList.remove('active');
+  document.getElementById('competitor-hook').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  startLoadingTheater();
+}
+function showReport() {
+  stopLoadingTheater();
+  document.getElementById('loading').classList.remove('active');
+  document.getElementById('report').classList.add('active');
+  document.getElementById('competitor-hook').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function showError(msg) {
+  stopLoadingTheater();
+  document.getElementById('loading').classList.remove('active');
+  document.getElementById('landing').style.display = 'block';
+  document.getElementById('submit-btn').disabled = false;
+  document.getElementById('submit-btn').textContent = 'Run my Red Flag Report →';
+  document.getElementById('trust-strip').innerHTML = '<span style="color:#ff4747;">⚠ ' + msg + '</span>';
+}
+function esc(s) { return String(s == null ? '' : s).replace(/[<>&"]/g, function(c){ return ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'})[c]; }); }
+function renderReport(r) {
+  var today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  var biz = r.business || {};
+  var rev = r.revenue || {};
+  var html = '';
+  html += '<div class="report-header">';
+  html += '<div class="stamp">🚩 Red Flag Report</div>';
+  html += '<h2>' + esc(biz.name || 'Your Business') + '</h2>';
+  html += '<div class="meta">Generated ' + today + ' · ' + esc(biz.address || '') + '</div>';
+  html += '</div>';
+  html += '<div class="section"><h3><span class="num">1</span> We Found You</h3>';
+  html += '<p><strong>' + esc(biz.name) + '</strong> — ' + esc(biz.category) + '</p>';
+  html += '<p style="opacity:.8;">' + esc(biz.years) + ' · ' + esc(biz.rating) + '</p></div>';
+  html += '<div class="section"><h3><span class="num">2</span> Red Flags</h3><ul>';
+  (r.redFlags || []).forEach(function(f) { html += '<li>' + esc(f) + '</li>'; });
+  html += '</ul></div>';
+  html += '<div class="section"><h3><span class="num">3</span> Your Local Competition</h3><div class="competitor-grid">';
+  (r.competitors || []).forEach(function(c) {
+    html += '<div class="competitor-card' + (c.isYou ? ' you' : '') + '">';
+    html += '<div class="name">' + esc(c.name) + '</div>';
+    html += '<div class="stats">' + esc(c.stats) + '</div>';
+    html += '</div>';
+  });
+  html += '</div></div>';
+  html += '<div class="section"><h3><span class="num">4</span> 2025–2026 Tailwinds (laws and rebates affecting you)</h3><ul class="arrows">';
+  (r.tailwinds || []).forEach(function(t) { html += '<li><strong>' + esc(t.name) + '</strong> — ' + esc(t.detail) + '</li>'; });
+  html += '</ul></div>';
+  html += '<div class="section"><h3><span class="num">5</span> Revenue at Stake</h3>';
+  html += '<div class="revenue-box"><div class="label">' + esc(rev.label || 'Estimated opportunity') + '</div>';
+  html += '<div class="amount">' + esc(rev.headline || 'Pending') + '</div>';
+  html += '<div class="note">' + esc(rev.breakdown || '') + '</div></div></div>';
+  html += '<div class="callout"><strong>The good news:</strong> Every red flag above is fixable. Most are setup work, not skill work — and most fixes pay back inside 90 days.</div>';
+  html += '<div class="report-footer">Sources scanned: ' + (r.sources || []).map(esc).join(' · ') + '<br>Generated by <span class="by">RedFlag.biz</span> · Powered by Claude AI with live web search</div>';
+  document.getElementById('report-content').innerHTML = html;
+}
+async function generateReport() {
+  var res = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ biz: app.biz, city: app.city, email: app.email })
+  });
+  if (!res.ok) {
+    var err = await res.text();
+    throw new Error('API ' + res.status + ': ' + err.slice(0, 200));
+  }
+  return await res.json();
+}
+document.getElementById('report-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  app.biz = document.getElementById('biz').value.trim();
+  app.city = document.getElementById('city').value.trim();
+  app.email = document.getElementById('email').value.trim();
+  if (!app.biz || !app.city || !app.email) return;
+  var state = readState();
+  var hasUsedFree = state.freeUsed === true;
+  var hasCredit = (state.credits || 0) > 0;
+  if (hasUsedFree && !hasCredit) { openPaywall(); return; }
+  document.getElementById('submit-btn').disabled = true;
+  document.getElementById('submit-btn').textContent = 'Running…';
+  showLoading();
+  try {
+    var reportData = await generateReport();
+    renderReport(reportData);
+    showReport();
+    var s = readState();
+    if (!s.freeUsed) { s.freeUsed = true; s.freeUsedAt = Date.now(); s.freeUsedFor = { biz: app.biz, city: app.city }; }
+    else if (s.credits && s.credits > 0) { s.credits -= 1; }
+    s.lastEmail = app.email;
+    writeState(s);
+    document.getElementById('submit-btn').disabled = false;
+    document.getElementById('submit-btn').textContent = 'Run my Red Flag Report →';
+  } catch(err) {
+    console.error(err);
+    showError('AI hit a snag. Please try again — ' + err.message);
+  }
+});
+function openPaywall() { document.getElementById('paywall').classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closePaywall() { document.getElementById('paywall').classList.remove('active'); document.body.style.overflow = ''; }
+function goCompetitor() {
+  document.getElementById('biz').value = '';
+  document.getElementById('biz').focus();
+  document.getElementById('landing').style.display = 'block';
+  document.getElementById('report').classList.remove('active');
+  document.getElementById('competitor-hook').style.display = 'none';
+  document.getElementById('trust-strip').innerHTML = '🔒 Next report is <span>$19.99</span> — competitor research. Real AI.';
+  window.scrollTo({ top: document.querySelector('.form-card').offsetTop - 60, behavior: 'smooth' });
+}
+function startCheckout() {
+  if (STRIPE_LINK.indexOf('REPLACE') !== -1) {
+    alert('Stripe payment link not yet configured.\n\nFor demo testing, grant yourself a credit in browser console:\nlocalStorage.setItem("redflag_state_v1", JSON.stringify(Object.assign({}, JSON.parse(localStorage.getItem("redflag_state_v1") || "{}"), {credits: 1})))\nthen close this dialog and re-submit.');
+    return;
+  }
+  var ret = encodeURIComponent(location.origin + '/?paid=1');
+  window.location.href = STRIPE_LINK + '?prefilled_email=' + encodeURIComponent(app.email || '') + '&success_url=' + ret;
+}
+(function() {
+  var params = new URLSearchParams(location.search);
+  if (params.get('paid') === '1') {
+    var s = readState();
+    s.credits = (s.credits || 0) + 1;
+    writeState(s);
+    history.replaceState({}, '', location.pathname);
+    alert('Payment received. You have 1 competitor report credit. Enter a business name to run it.');
+  }
+  var s = readState();
+  if (s.freeUsed && !s.credits) {
+    document.getElementById('trust-strip').innerHTML = '🔒 Next report is <span>$19.99</span> — competitor research. Real AI.';
+  } else if (s.credits) {
+    document.getElementById('trust-strip').innerHTML = '✓ You have <span>' + s.credits + ' competitor credit' + (s.credits > 1 ? 's' : '') + '</span> ready to use.';
+  }
+})();
+</script>
+
+</body>
+</html>
