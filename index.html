@@ -108,6 +108,28 @@ footer a { color: #ffb800; }
   .competitor-hook { padding: 20px 16px; }
   .paywall-card { padding: 24px 20px; }
 }
+.report-hero { display: grid; grid-template-columns: 240px 1fr; gap: 22px; margin-bottom: 22px; padding-bottom: 20px; border-bottom: 2px solid #f0f0f0; align-items: center; }
+@media (max-width: 600px) { .report-hero { grid-template-columns: 1fr; gap: 14px; text-align: center; } }
+.gauge-wrap { text-align: center; }
+.gauge { width: 100%; max-width: 240px; height: auto; }
+.grade-letter { font-size: 64px; font-weight: 900; line-height: 1; margin-top: -32px; }
+.grade-letter.f { color: #c0392b; }
+.grade-letter.d { color: #e67e22; }
+.grade-letter.c { color: #f39c12; }
+.grade-letter.b { color: #16a085; }
+.grade-letter.a { color: #27ae60; }
+.grade-sub { font-size: 13px; color: #5a6878; margin-top: 4px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+.solutions-col h3 { font-size: 18px; font-weight: 800; color: #0a1428; margin-bottom: 8px; line-height: 1.2; }
+.solutions-col .lead { font-size: 13px; color: #5a6878; margin-bottom: 14px; }
+.solutions-list { list-style: none; padding: 0; margin: 0; }
+.solutions-list li { padding: 10px 12px; margin-bottom: 8px; background: linear-gradient(135deg, #fff8e8 0%, #ffefb3 100%); border-left: 4px solid #ffb800; border-radius: 8px; }
+.solutions-list li.leapfrog { background: linear-gradient(135deg, #e8f8ee 0%, #c8efd6 100%); border-left-color: #27ae60; }
+.sol-title { font-weight: 800; color: #0a1428; font-size: 14px; margin-bottom: 4px; }
+.sol-context { font-size: 12px; color: #5a6878; font-style: italic; margin-bottom: 4px; }
+.sol-fix { font-size: 13px; color: #2a3548; line-height: 1.45; }
+.sol-fix strong { color: #ff4747; }
+.sol-badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 10px; background: #ffb800; color: #0a1428; font-weight: 700; letter-spacing: .5px; margin-left: 6px; vertical-align: middle; }
+.sol-badge.leapfrog { background: #27ae60; color: #fff; }
 </style>
 </head>
 <body>
@@ -266,12 +288,51 @@ function renderReport(r) {
   var today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   var biz = r.business || {};
   var rev = r.revenue || {};
+  var sc = r.score || {};
+  var sols = r.solutions || [];
   var html = '';
   html += '<div class="report-header">';
   html += '<div class="stamp">🚩 Red Flag Report</div>';
   html += '<h2>' + esc(biz.name || 'Your Business') + '</h2>';
   html += '<div class="meta">Generated ' + today + ' · ' + esc(biz.address || '') + '</div>';
   html += '</div>';
+  var presenceScore = (typeof sc.presence === 'number' ? sc.presence : (sc.presence ? parseInt(sc.presence) : null));
+  if (presenceScore !== null || sols.length > 0) {
+    var gradeLetter = sc.grade || (presenceScore !== null ? scoreToGrade(presenceScore) : '?');
+    var gradeClass = (gradeLetter.charAt(0) || 'f').toLowerCase();
+    var displayScore = presenceScore !== null ? presenceScore : 0;
+    var dashOffset = 251 * (1 - displayScore / 100);
+    var needleAngle = 180 - (displayScore / 100 * 180);
+    html += '<div class="report-hero">';
+    html += '<div class="gauge-wrap">';
+    html += '<svg class="gauge" viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">';
+    html += '<defs><linearGradient id="gauge-grad" x1="0%" x2="100%"><stop offset="0%" stop-color="#c0392b"/><stop offset="35%" stop-color="#e67e22"/><stop offset="60%" stop-color="#f39c12"/><stop offset="100%" stop-color="#27ae60"/></linearGradient></defs>';
+    html += '<path d="M 20 100 A 80 80 0 0 1 180 100" stroke="#eee" stroke-width="16" fill="none" stroke-linecap="round"/>';
+    html += '<path d="M 20 100 A 80 80 0 0 1 180 100" stroke="url(#gauge-grad)" stroke-width="16" fill="none" stroke-linecap="round" stroke-dasharray="251 251" stroke-dashoffset="' + dashOffset + '"/>';
+    html += '<g transform="rotate(' + (-needleAngle + 180) + ' 100 100)">';
+    html += '<line x1="100" y1="100" x2="170" y2="100" stroke="#0a1428" stroke-width="3" stroke-linecap="round"/>';
+    html += '<circle cx="100" cy="100" r="6" fill="#0a1428"/>';
+    html += '</g>';
+    html += '<text x="100" y="125" text-anchor="middle" font-size="11" fill="#5a6878">' + displayScore + ' / 100</text>';
+    html += '</svg>';
+    html += '<div class="grade-letter ' + esc(gradeClass) + '">' + esc(gradeLetter) + '</div>';
+    html += '<div class="grade-sub">' + esc(sc.label || 'Online Presence') + '</div>';
+    html += '</div>';
+    html += '<div class="solutions-col">';
+    html += '<h3>Here is how we make you better than your competition.</h3>';
+    html += '<p class="lead">Each item is something a top competitor does (or does not) — and what we would do for you.</p>';
+    html += '<ul class="solutions-list">';
+    sols.slice(0, 5).forEach(function(s) {
+      var isLeap = (s.category || '').toLowerCase().indexOf('leap') !== -1;
+      html += '<li' + (isLeap ? ' class="leapfrog"' : '') + '>';
+      html += '<div class="sol-title">' + esc(s.title || '') + (isLeap ? ' <span class="sol-badge leapfrog">LEAPFROG</span>' : ' <span class="sol-badge">CATCH UP</span>') + '</div>';
+      if (s.competitorContext) html += '<div class="sol-context">' + esc(s.competitorContext) + '</div>';
+      if (s.ourMove) html += '<div class="sol-fix"><strong>What we will do:</strong> ' + esc(s.ourMove) + '</div>';
+      html += '</li>';
+    });
+    if (sols.length === 0) html += '<li><div class="sol-fix">Solutions list pending.</div></li>';
+    html += '</ul></div></div>';
+  }
   html += '<div class="section"><h3><span class="num">1</span> We Found You</h3>';
   html += '<p><strong>' + esc(biz.name) + '</strong> — ' + esc(biz.category) + '</p>';
   html += '<p style="opacity:.8;">' + esc(biz.years) + ' · ' + esc(biz.rating) + '</p></div>';
@@ -282,11 +343,10 @@ function renderReport(r) {
   (r.competitors || []).forEach(function(c) {
     html += '<div class="competitor-card' + (c.isYou ? ' you' : '') + '">';
     html += '<div class="name">' + esc(c.name) + '</div>';
-    html += '<div class="stats">' + esc(c.stats) + '</div>';
-    html += '</div>';
+    html += '<div class="stats">' + esc(c.stats) + '</div></div>';
   });
   html += '</div></div>';
-  html += '<div class="section"><h3><span class="num">4</span> 2025–2026 Tailwinds (laws and rebates affecting you)</h3><ul class="arrows">';
+  html += '<div class="section"><h3><span class="num">4</span> 2025–2026 Tailwinds</h3><ul class="arrows">';
   (r.tailwinds || []).forEach(function(t) { html += '<li><strong>' + esc(t.name) + '</strong> — ' + esc(t.detail) + '</li>'; });
   html += '</ul></div>';
   html += '<div class="section"><h3><span class="num">5</span> Revenue at Stake</h3>';
@@ -297,6 +357,17 @@ function renderReport(r) {
   html += '<div class="report-footer">Sources scanned: ' + (r.sources || []).map(esc).join(' · ') + '<br>Generated by <span class="by">RedFlag.biz</span> · Powered by Claude AI with live web search</div>';
   document.getElementById('report-content').innerHTML = html;
 }
+function scoreToGrade(n) {
+  if (n >= 90) return 'A+';
+  if (n >= 85) return 'A';
+  if (n >= 80) return 'B+';
+  if (n >= 75) return 'B';
+  if (n >= 70) return 'C+';
+  if (n >= 60) return 'C';
+  if (n >= 50) return 'D';
+  return 'F';
+}
+
 async function generateReport() {
   var res = await fetch('/api/generate', {
     method: 'POST',
