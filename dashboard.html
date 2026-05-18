@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RedFlag.biz · Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0a1428;color:#fff;line-height:1.5;padding:20px;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font-size:28px;font-weight:900;margin-bottom:8px}
+h1 .dot{color:#ff4747}
+.sub{color:#8a96a8;font-size:14px;margin-bottom:24px}
+.gate{background:#1a2540;padding:30px;border-radius:14px;max-width:420px;margin:60px auto;border:1px solid rgba(255,184,0,.3)}
+.gate h2{font-size:20px;margin-bottom:8px}
+.gate p{color:#c4cdd9;font-size:14px;margin-bottom:18px}
+.gate input{width:100%;padding:12px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.3);color:#fff;font-size:15px;outline:none;font-family:inherit;margin-bottom:12px}
+.gate input:focus{border-color:#ffb800}
+.gate button{width:100%;padding:13px;border-radius:8px;border:0;background:#ffb800;color:#0a1428;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit}
+.gate button:hover{background:#ffd24d}
+.gate .err{color:#ff4747;font-size:13px;margin-top:8px;text-align:center;min-height:18px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px}
+.stat{background:#1a2540;padding:18px;border-radius:12px;border-left:4px solid #ffb800}
+.stat .label{font-size:11px;color:#8a96a8;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:6px}
+.stat .value{font-size:30px;font-weight:900;color:#ffb800;line-height:1}
+.section{background:#1a2540;border-radius:12px;padding:18px;margin-bottom:18px}
+.section h2{font-size:16px;font-weight:800;margin-bottom:12px;color:#ffb800}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px}
+th{color:#8a96a8;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+td.ua{font-family:monospace;font-size:11px;color:#8a96a8;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.from{color:#ffb800;font-weight:600}
+.event-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.event-badge.page_view{background:rgba(255,184,0,.15);color:#ffb800}
+.event-badge.report_generated{background:rgba(94,234,132,.15);color:#5eea84}
+.refresh{float:right;background:transparent;color:#8a96a8;border:1px solid rgba(255,255,255,.15);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
+.refresh:hover{color:#ffb800;border-color:#ffb800}
+.empty{color:#8a96a8;text-align:center;padding:24px;font-style:italic}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="gate" class="gate" style="display:none">
+    <h2>🔒 RedFlag Dashboard</h2>
+    <p>Enter your dashboard key to view analytics.</p>
+    <input type="password" id="key-input" placeholder="Dashboard key" autofocus>
+    <button onclick="tryAuth()">Unlock</button>
+    <div class="err" id="err"></div>
+  </div>
+  <div id="app" style="display:none">
+    <h1>RedFlag<span class="dot">●</span>.biz — Dashboard <button class="refresh" onclick="loadEvents()">↻ Refresh</button></h1>
+    <div class="sub" id="last-updated">Loading...</div>
+    <div class="stats" id="stats"></div>
+    <div class="section"><h2>Top businesses queried</h2><div id="top-biz"></div></div>
+    <div class="section"><h2>Recent events (last 50)</h2><div id="recent"></div></div>
+  </div>
+</div>
+<script>
+var KEY_STORE = 'redflag_dashboard_key';
+var allEvents = [];
+function getKey() { return sessionStorage.getItem(KEY_STORE); }
+function setKey(k) { sessionStorage.setItem(KEY_STORE, k); }
+function clearKey() { sessionStorage.removeItem(KEY_STORE); }
+function esc(s) { return String(s == null ? '' : s).replace(/[<>&"]/g, function(c){return ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'})[c]}); }
+function show(id) { document.getElementById(id).style.display = 'block'; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+async function loadEvents() {
+  var key = getKey();
+  if (!key) { show('gate'); hide('app'); return; }
+  try {
+    var res = await fetch('/api/events?key=' + encodeURIComponent(key));
+    if (res.status === 401) { clearKey(); show('gate'); hide('app'); document.getElementById('err').textContent = 'Invalid key'; return; }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var data = await res.json();
+    allEvents = data.events || [];
+    hide('gate'); show('app');
+    render();
+  } catch(e) { document.getElementById('err').textContent = 'Error: ' + e.message; show('gate'); hide('app'); }
+}
+function tryAuth() {
+  var k = document.getElementById('key-input').value.trim();
+  if (!k) return;
+  setKey(k);
+  loadEvents();
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Enter' && document.getElementById('gate').style.display !== 'none') tryAuth(); });
+function render() {
+  document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString() + ' · ' + allEvents.length + ' total events';
+  var now = Date.now();
+  var day = 86400000;
+  var pageViews = allEvents.filter(function(e){return e.event === 'page_view'});
+  var reports = allEvents.filter(function(e){return e.event === 'report_generated'});
+  var last24h = allEvents.filter(function(e){return (now - new Date(e.ts).getTime()) < day});
+  var uniqueBiz = {};
+  pageViews.forEach(function(e){if(e.biz) uniqueBiz[e.biz.toLowerCase()] = (uniqueBiz[e.biz.toLowerCase()] || 0) + 1});
+  document.getElementById('stats').innerHTML = '<div class="stat"><div class="label">Total visits</div><div class="value">' + pageViews.length + '</div></div><div class="stat"><div class="label">Reports generated</div><div class="value">' + reports.length + '</div></div><div class="stat"><div class="label">Last 24h</div><div class="value">' + last24h.length + '</div></div><div class="stat"><div class="label">Unique businesses</div><div class="value">' + Object.keys(uniqueBiz).length + '</div></div>';
+  var topBizArr = Object.keys(uniqueBiz).map(function(k){return [k, uniqueBiz[k]]}).sort(function(a,b){return b[1]-a[1]}).slice(0, 10);
+  if (topBizArr.length === 0) document.getElementById('top-biz').innerHTML = '<div class="empty">No business queries yet.</div>';
+  else {
+    var bizHtml = '<table><thead><tr><th>Business</th><th>Visits</th></tr></thead><tbody>';
+    topBizArr.forEach(function(b){ bizHtml += '<tr><td>' + esc(b[0]) + '</td><td>' + b[1] + '</td></tr>'; });
+    document.getElementById('top-biz').innerHTML = bizHtml + '</tbody></table>';
+  }
+  var recent = allEvents.slice(-50).reverse();
+  if (recent.length === 0) document.getElementById('recent').innerHTML = '<div class="empty">No events yet.</div>';
+  else {
+    var rHtml = '<table><thead><tr><th>Time</th><th>Event</th><th>Business</th><th>City</th><th>From</th><th>User Agent</th></tr></thead><tbody>';
+    recent.forEach(function(e) {
+      var rel = Math.round((Date.now() - new Date(e.ts).getTime()) / 60000);
+      var when = rel < 1 ? 'just now' : (rel < 60 ? rel + 'm ago' : (rel < 1440 ? Math.round(rel/60) + 'h ago' : Math.round(rel/1440) + 'd ago'));
+      rHtml += '<tr><td>' + esc(when) + '</td><td><span class="event-badge ' + esc(e.event) + '">' + esc(e.event) + '</span></td><td>' + esc(e.biz) + '</td><td>' + esc(e.city) + '</td><td class="from">' + esc(e.from) + '</td><td class="ua">' + esc((e.ua || '').slice(0, 60)) + '</td></tr>';
+    });
+    document.getElementById('recent').innerHTML = rHtml + '</tbody></table>';
+  }
+}
+loadEvents();
+setInterval(loadEvents, 30000);
+</script>
+</body>
+</html>
