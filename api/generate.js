@@ -50,6 +50,12 @@ const SYSTEM_PROMPT = [
   '    "grade": "string - one of: A+, A, B+, B, C+, C, D, F",',
   '    "label": "string - short description like Online presence"',
   '  },',
+  '  "wedge": {',
+  '    "title": "string - the wedge in one phrase, e.g., Mobile concierge braiding for tourist hotels",',
+  '    "rationale": "string - why this wedge works given competitor analysis",',
+  '    "playbook": ["string", "string", "string"],',
+  '    "revenue": "string - revenue impact, e.g., +$30-50K/yr from premium mobile pricing"',
+  '  },',
   '  "solutions": [',
   '    { "title": "string - short solution name", "competitorContext": "string - what competitors do/dont do", "ourMove": "string - what we will do for THIS business that makes them BETTER than competitors", "category": "string - catch-up or leapfrog" }',
   '  ],',
@@ -71,7 +77,16 @@ const SYSTEM_PROMPT = [
   '  "sources": ["string", "string", "string", "string", "string"]',
   '}',
   '',
-  'Return ONLY the JSON object. No other text.'
+  '8. WEDGE IDENTIFICATION - THE MOST IMPORTANT STRATEGIC INSIGHT. Identify ONE specific underserved angle this business can dominate. Look at what ALL competitors share (saturation) and what NONE of them do (gap). Examples:',
+            '   - Mobile/concierge service (when all competitors are fixed location)',
+            '   - Hotel/AirBnB partnerships for tourists (when all competitors only serve walk-ins)',
+            '   - Late-night hours 8pm-midnight (when all competitors close by 7pm)',
+            '   - Bridal/event specialty (when all do general walk-in only)',
+            '   - Home studio for intimate appointments (when all are salon-based)',
+            '   - Multi-city/multi-market expertise (when local competitors only have local experience)',
+            'The wedge should be a 1-line strategic position that no competitor occupies. Provide a rationale grounded in the competitor data, a 3-5 step playbook, and a revenue impact estimate.',
+            '',
+            'Return ONLY the JSON object. No other text.'
 ].join('\n');
 
 export default async function handler(req, res) {
