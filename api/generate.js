@@ -129,7 +129,7 @@ export default async function handler(req, res) {
   try {
     const response = await client.messages.create({
       model: 'claude-sonnet-4-5',
-      max_tokens: 8000,
+      max_tokens: 12000,
       system: SYSTEM_PROMPT,
       tools: [
         {
@@ -139,12 +139,15 @@ export default async function handler(req, res) {
         }
       ],
       messages: [
-        { role: 'user', content: userPrompt }
+        { role: 'user', content: userPrompt },
+        { role: 'assistant', content: '{' }
       ]
     });
 
     const textBlocks = (response.content || []).filter(c => c.type === 'text');
-    const fullText = textBlocks.map(b => b.text).join('\n').trim();
+    let fullText = textBlocks.map(b => b.text).join('\n').trim();
+    // Prefilled response — prepend { if it doesn't start with one
+    if (!fullText.startsWith('{')) fullText = '{' + fullText;
 
     let json;
     try {
