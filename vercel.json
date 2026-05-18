@@ -2,6 +2,21 @@
   "functions": {
     "api/generate.js": {
       "maxDuration": 90
+    },
+    "api/feedback.js": {
+      "maxDuration": 30
+    },
+    "api/track.js": {
+      "maxDuration": 20
+    },
+    "api/events.js": {
+      "maxDuration": 20
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/dashboard",
+      "destination": "/dashboard.html"
+    }
+  ]
 }
