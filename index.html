@@ -333,6 +333,22 @@ function renderReport(r) {
     if (sols.length === 0) html += '<li><div class="sol-fix">Solutions list pending.</div></li>';
     html += '</ul></div></div>';
   }
+  // WEDGE section
+  var w = r.wedge || {};
+  if (w.title) {
+    html += '<div class="wedge-card">';
+    html += '<div class="wedge-badge">\u2728 Your Wedge</div>';
+    html += '<div class="wedge-title">' + esc(w.title) + '</div>';
+    if (w.rationale) html += '<div class="wedge-rationale">' + esc(w.rationale) + '</div>';
+    if (w.playbook && w.playbook.length) {
+      html += '<div class="wedge-playbook-title">Playbook:</div>';
+      html += '<ol class="wedge-playbook">';
+      (w.playbook || []).forEach(function(p) { html += '<li>' + esc(p) + '</li>'; });
+      html += '</ol>';
+    }
+    if (w.revenue) html += '<div class="wedge-revenue"><strong>Revenue impact:</strong> ' + esc(w.revenue) + '</div>';
+    html += '</div>';
+  }
   html += '<div class="section"><h3><span class="num">1</span> We Found You</h3>';
   html += '<p><strong>' + esc(biz.name) + '</strong> — ' + esc(biz.category) + '</p>';
   html += '<p style="opacity:.8;">' + esc(biz.years) + ' · ' + esc(biz.rating) + '</p></div>';
